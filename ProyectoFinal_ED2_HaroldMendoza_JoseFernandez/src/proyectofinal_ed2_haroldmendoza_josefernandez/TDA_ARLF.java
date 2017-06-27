@@ -13,18 +13,22 @@ import javax.swing.JOptionPane;
 public class TDA_ARLF {
     
     private File archivo;
+    private File IndexArchivo=new File("./IndexFile.bin");
+    private RandomAccessFile flujoIndice;
     private RandomAccessFile flujo;
     private final int sizeOfRecord = (Character.BYTES+1)+Integer.BYTES+(Character.BYTES+40)+(Character.BYTES+10)+Float.BYTES;
-    private final int sizeOfHeader = Integer.BYTES;
     private LinkedList AvailList = new LinkedList();
     ArrayList<Person> listPersonas = new ArrayList();
+    ArrayList<Indice> IndexFile = new ArrayList();
     int rrnDelete;
+    int rrnModificar;
 
     public TDA_ARLF(File archivo) {
         this.archivo = archivo;
         try {
             flujo = new RandomAccessFile(archivo, "rw");
             llenarAvailList();
+            readIndexFile();
             
         } catch (Exception e) {
             System.out.println("Archivo no existe");
@@ -74,9 +78,24 @@ public class TDA_ARLF {
         }
     }
     
+    public void openIndex(){
+        try {
+            flujoIndice = new RandomAccessFile(IndexArchivo, "rw");
+        } catch (Exception e) {
+            System.out.println("Archivo no existe");
+        }
+    
+    }
+    
     public void close(){
         try {
             flujo.close();
+        } catch (Exception e) {
+        }
+    }
+    public void closeIndice(){
+        try {
+            flujoIndice.close();
         } catch (Exception e) {
         }
     }
@@ -86,7 +105,6 @@ public class TDA_ARLF {
         int rrn=0;
         try {
             while(true){
-                rrn++;
                 if(AvailList.isEmpty()){
                     
                     flujo.seek(archivo.length());
@@ -95,6 +113,9 @@ public class TDA_ARLF {
                     flujo.writeUTF(persona.getName());
                     flujo.writeUTF(persona.getBirthDate());
                     flujo.writeFloat(persona.getSalary());
+                    //IndexFile.add(new Indice(persona.getId(), rrn));
+                    //writeIndexFile(IndexFile.get(IndexFile.size()-1));
+                    rrn++;
                     close();
                     return true;
                 }else{
@@ -106,10 +127,14 @@ public class TDA_ARLF {
                     flujo.writeUTF(persona.getName());
                     flujo.writeUTF(persona.getBirthDate());
                     flujo.writeFloat(persona.getSalary());
+                    //IndexFile.add(new Indice(persona.getId(), rrn));
+                    //writeIndexFile(IndexFile.get(IndexFile.size()-1));
+                    rrn++;
                     close();
                     return true;
                     
                 }
+                
                 
             }
         } catch (EOFException e) {
@@ -132,7 +157,7 @@ public class TDA_ARLF {
                 persona.setSalary(flujo.readFloat());
                 if(persona.getEstadoRecord()=='-'){ ///verificar que el record no este marccado como borrado
                     listPersonas.add(persona);
-                    System.out.println(listPersonas.get(listPersonas.size()-1).toString());
+                    //System.out.println(listPersonas.get(listPersonas.size()-1).toString());
                 }
                 
             }
@@ -190,10 +215,25 @@ public class TDA_ARLF {
         
     }//fin search
     
-    public boolean modify(Person p){
+    public boolean modify(Person p) throws IOException{
+        open();
         boolean modifico = false;
-        Person person = search(p.getName());
+        Person persona = p;
+        System.out.println("RRNModificar: "+rrnModificar);
+        try { 
+            flujo.seek(0);
+            flujo.seek(sizeOfRecord*(rrnModificar-1));
+            flujo.writeChar(persona.getEstadoRecord());
+            flujo.writeInt(persona.getId());
+            flujo.writeUTF(persona.getName());
+            flujo.writeUTF(persona.getBirthDate());
+            flujo.writeFloat(persona.getSalary());
+            modifico=true;
+        } catch (Exception e) {
+            System.out.println("Fallo 2");
+        }
         
+        close();
         
         
         
@@ -225,13 +265,13 @@ public class TDA_ARLF {
                    flujo.writeFloat(recordBorrar.getSalary());
                    //Se agrega al AvailList el registro borrado
                    AvailList.add(0, rrnDelete);
-                       System.out.println("Probando Availist");
-                       
+                       System.out.println("======================");
+                       System.out.println("Registros en Availist");
                        for (Object object : AvailList) {
                            String x = object.toString();
-                           System.out.println("Hola");
                            System.out.println(x);
                        }
+                       System.out.println("======================");
                     
                     close();
                     return true;
@@ -268,8 +308,31 @@ public class TDA_ARLF {
         
     }//fin search
     
-    public void llenarAvailList() throws IOException{
+    public Person searchModificar(String aux){ //busqueda especial para el metodo delete
+        open();
+        Person persona = null;
+        rrnModificar=0;
+        try {
+            do {
+                persona = new Person();
+                persona.setEstadoRecord(flujo.readChar());
+                persona.setId(flujo.readInt());
+                persona.setName(flujo.readUTF());
+                persona.setBirthDate(flujo.readUTF());
+                persona.setSalary(flujo.readFloat());
+                rrnModificar++;
+                
+            } while (!persona.getName().equals(aux));
+            
+        } catch (Exception e) {
+        }
+        close();
         
+        return persona;
+        
+    }//fin search
+    
+    public void llenarAvailList() throws IOException{
         Person persona;
         listPersonas = new ArrayList(); 
         try {
@@ -294,6 +357,71 @@ public class TDA_ARLF {
         }
         
     }
-
     
+    public void llenarIndexFile() throws IOException{
+        open();
+        Person persona;
+        IndexFile = new ArrayList();
+        int rrn=0;
+        try {
+            while(true){
+                
+                persona = new Person();
+                persona.setEstadoRecord(flujo.readChar());
+                persona.setId(flujo.readInt());
+                persona.setName(flujo.readUTF());
+                persona.setBirthDate(flujo.readUTF());
+                persona.setSalary(flujo.readFloat());
+                IndexFile.add(new Indice(persona.getId(), rrn));
+                rrn++;
+            }
+        } catch (EOFException e) {
+        }
+        close();
+        for (Indice object : IndexFile) {
+            System.out.println(object.toString());
+            writeIndexFile(object);
+        }
+
+        
+        
+    }
+    
+    public void readIndexFile() throws IOException{
+        openIndex();
+        Indice indice;
+        try {
+            while(true){
+                indice = new Indice();
+                indice.setId(flujo.readInt());
+                indice.setKey(flujo.readInt());
+                IndexFile.add(indice);
+            }
+        } catch (EOFException e) {
+        }
+        
+        
+        System.out.println("Cargado el IndexFile");
+        
+        
+        closeIndice();
+    }
+    
+    
+    public boolean writeIndexFile(Indice ind) throws IOException{
+        openIndex();
+        try {
+            while(true){
+            flujoIndice.seek(IndexArchivo.length());
+            flujoIndice.writeInt(ind.getId());
+            flujoIndice.writeInt(ind.getKey());
+            return true;
+            }
+        } catch (EOFException e) {
+        }
+        closeIndice();
+        return false;
+      
+    }//Fin de cargar archivo
+
 }

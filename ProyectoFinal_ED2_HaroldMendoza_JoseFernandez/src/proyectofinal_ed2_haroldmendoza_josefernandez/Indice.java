@@ -5,44 +5,43 @@
  */
 package proyectofinal_ed2_haroldmendoza_josefernandez;
 
-import java.io.Serializable;
-
 /**
  *
- * @author Jose
+ * @author Harold Mendoza
  */
-public class Indice implements Serializable {
-
-    private static final long SerialVersionUID = 666L;
-    private int Id;
-    private int Key;
-
-    public Indice(int Id, int Key) {
-        this.Id = Id;
-        this.Key = Key;
-    }
+public class Indice {
+    int id;
+    int key;
 
     public Indice() {
     }
 
-    public int getId() {
-        return Id;
+    public Indice(int id, int key) {
+        this.id = id;
+        this.key = key;
     }
 
-    public void setId(int Id) {
-        this.Id = Id;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getKey() {
-        return Key;
+        return key;
     }
 
-    public void setKey(int Key) {
-        this.Key = Key;
+    public void setKey(int key) {
+        this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        return "Indice{" + "id=" + id + ", key=" + key + '}';
     }
     
     
-
     
-
 }

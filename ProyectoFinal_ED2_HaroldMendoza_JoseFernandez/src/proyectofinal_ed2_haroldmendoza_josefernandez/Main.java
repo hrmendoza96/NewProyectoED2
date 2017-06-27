@@ -22,9 +22,6 @@ public class Main extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        
-        boolean cargo= cargarArbolB();
-        //System.out.println("Se cargo arbol B="+cargo);
 
     }//Fin del main
 
@@ -1007,14 +1004,17 @@ public class Main extends javax.swing.JFrame {
         if ((Integer.parseInt(tf_ModifySalary.getText()) < 0) || (Integer.parseInt(tf_ModifyID.getText()) < 0) || (tf_ModifyName.getText().equals(""))) {
             JOptionPane.showMessageDialog(this.jd_modify, "No ha llenado los campos correctamente.", "Error", JOptionPane.ERROR_MESSAGE);
         } else {
+            
             //Para pasar el nombre a un arreglo de caracteres
-            String cadena = txt_nombreUser.getText();
+            String cadena = tf_ModifyName.getText();
             int size = cadena.length();
             if (size <= 40) {
 
                 Person persona = null;
-                String nombreAux = (String) cb_search.getSelectedItem();
-                persona = tda.search(nombreAux);
+                String nombreAux = (String) cb_modify.getSelectedItem();
+                persona = tda.searchModificar(nombreAux);
+                System.out.println("La persona se ha encontrado y es: "+persona.toString());
+                persona.setEstadoRecord('-');
                 persona.setId(Integer.parseInt(tf_ModifyID.getText()));
                 persona.setName(tf_ModifyName.getText());
                 persona.setSalary(Integer.parseInt(tf_ModifySalary.getText()));
@@ -1025,12 +1025,20 @@ public class Main extends javax.swing.JFrame {
                 String fecha;
                 fecha = fechaSeleccionada;
                 persona.setBirthDate(fecha);
-                //Fin del date
+                try {
+                    //Fin del date
+                    boolean seModifico = tda.modify(persona);
+                    if(seModifico){
+                        JOptionPane.showMessageDialog(this.jd_modify, "Persona modficada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
             } else {
                 JOptionPane.showMessageDialog(this.jd_modify, "Muchos caracteres.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-            JOptionPane.showMessageDialog(this.jd_modify, "Persona modficada correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            
             this.tf_ModifyID.setText("");
             this.tf_ModifyName.setText("");
             this.tf_ModifySalary.setText("");
@@ -1230,11 +1238,10 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JTextField txt_nombreUser;
     // End of variables declaration//GEN-END:variables
 
-    File archivo = new File("./PruebaDelete.bin");
+    File archivo = new File("./Registros.bin");
     TDA_ARLF tda = new TDA_ARLF(archivo);
     ArrayList<Person> personas = new ArrayList();
     Person personaToDelete = null;
-    ArbolB BTree = new ArbolB(3); //orden=5, keySize = 4
 
     private void List() throws IOException {
         personas = new ArrayList();
@@ -1292,7 +1299,7 @@ public class Main extends javax.swing.JFrame {
             modelo.addElement(temp.getName()); //los pasa con su toString
         }
         cb_search.setModel(modelo);
-        System.out.println(modelo.getSize());
+        //System.out.println(modelo.getSize());
     }//Fin del metodo
 
     private void ListarCBDelete() throws IOException {
@@ -1310,24 +1317,6 @@ public class Main extends javax.swing.JFrame {
         cb_delete.setModel(modelo);
     }//Fin del metodo
     
-    public boolean cargarArbolB() throws IOException{
-        
-        boolean seCargo=false;
-        /*
-        personas = new ArrayList();
-        int KeyRRN = tda.listarArbol();
-        personas = tda.getListPersonas();
-        ArrayList<Person> temp;
-        temp = sortOtherArrays(personas);
-        for (Person persona : temp) {
-            BTree.addNodeTree(persona.getId(), KeyRRN);
-            seCargo=true;
-        }
-        BTree.printArbol(BTree.getRoot());
-        */
-       
-        return seCargo;
-    }
     
         public ArrayList<Person> sortOtherArrays(ArrayList temp) { //se realiza el sort del arrayList para el split
         Collections.sort(temp, new Comparator<Person>() {
@@ -1378,21 +1367,7 @@ public class Main extends javax.swing.JFrame {
             } catch (Exception e) {
             }
 
-            System.out.println("Tamaño al leer el txt: " + personas.size());
-
             
-            
-            
-
-
-            /*
-            adminPerson am = new adminPerson("./Registros.bin");
-            for (int i = 0; i < personas.size(); i++) {
-                am.cargarArchivo();
-                am.setPerson(personas.get(i));
-                am.escribirArchivo();
-            }
-            */
         }
         
         

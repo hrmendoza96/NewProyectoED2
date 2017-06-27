@@ -5,106 +5,147 @@
  */
 package proyectofinal_ed2_haroldmendoza_josefernandez;
 
-import java.util.ArrayList;
-
 /**
  *
  * @author Harold Mendoza
  */
 public class Node {
-    
-    Node Father;
-    ArrayList<Node> Leftchildren = new ArrayList();
-    ArrayList<Node> Rightchildren = new ArrayList();
-    boolean hasFather;
-    boolean hasLeftSon;
-    boolean hasRightSon;
-    int key; //el rrn del archivo
-    int id; //el que ingresa el usuario
-    
-    //El rrn lo usamos en el search y encontramos el archivo
-
-    
+    public Indice keys[];
+    public Node children[];
+    int MinGradoNodo;
+    int NumKeys; //actual numero de llaves
+    public boolean isLeaf;
 
     public Node() {
     }
 
-    public Node(int id, int key) {
-        this.key = key;
-        this.id = id;
+    public Node(int t, boolean isLeaf) {
+        this.MinGradoNodo = t;
+        this.isLeaf = isLeaf;
+        keys = new Indice[2*t-1];//Numero maximo de llaves
+        children = new Node [2*t];//numero maximo de hijos
+        NumKeys=0;
     }
 
-    public Node getFather() {
-        return Father;
+    public int getMinGradoNodo() {
+        return MinGradoNodo;
     }
 
-    public void setFather(Node Father) {
-        hasFather=true;
-        this.Father = Father;
+    public int getNumKeys() {
+        return NumKeys;
     }
 
-    public ArrayList<Node> getLeftchildren() {
-        return Leftchildren;
+    public void setMinGradoNodo(int t) {
+        this.MinGradoNodo = t;
     }
 
-    public void setLeftchildren(Node Leftchildren) {
-        hasLeftSon=true;
-        this.Leftchildren.add(Leftchildren);
+    public void setNumKeys(int n) {
+        this.NumKeys = n;
     }
 
-    public ArrayList<Node> getRightchildren() {
-        return Rightchildren;
-    }
-
-    public void setRightchildren(Node Rightchildren) {
-        hasRightSon=true;
-        this.Rightchildren.add(Rightchildren);
-    }
-
-    public boolean HasLeftSon() {
-        return hasLeftSon;
-    }
-
-    public void setHasLeftSon(boolean hasLeftSon) {
-        this.hasLeftSon = hasLeftSon;
-    }
-
-    public boolean HasRightSon() {
-        return hasRightSon;
-    }
-
-    public void setHasRightSon(boolean hasRightSon) {
-        this.hasRightSon = hasRightSon;
+    public void setIsLeaf(boolean isLeaf) {
+        this.isLeaf = isLeaf;
     }
     
-
-    public int getKey() {
-        return key;
+    public boolean isIsLeaf() {
+        return isLeaf;
     }
-
-    public void setKey(int key) {
-        this.key = key;
+    
+    
+    
+    
+    public Node search(Indice key){
+         
+        int cont = 0;
+        while(cont<NumKeys && key.getId()> keys[cont].getId()){//encontrar llave mayor o igual a k
+            cont++;
+        }
+        if(keys[cont].getId()==key.getId()){ //si encuentra que la key es igual a k, entonces este es el nodo
+            return this;
+        }
+        
+        if(isLeaf==true){ //retorna nada si no lo encuentra y este es una leaf
+            return null;
+        }
+        //continua buscando el hijo
+        return children[cont].search(key);
     }
+    
+    public void splitChild(int i, Node nodo){
+        Node NewNodo = new Node(nodo.getMinGradoNodo(), nodo.isIsLeaf());
+        NewNodo.setNumKeys(MinGradoNodo-1);
+        
+        for (int j = 0; j < (MinGradoNodo-1); j++) {
+            NewNodo.children[j] = nodo.children[j+MinGradoNodo];
+        }
+        
+        if(nodo.isIsLeaf()==false){
+            for (int j = 0; j < MinGradoNodo; j++) {
+                NewNodo.children[j] = nodo.children[j+MinGradoNodo];
+            }
+        }
+            
+        nodo.setNumKeys(MinGradoNodo-1);
+        for (int j = NumKeys; j >= i+1; j--) {
+            children[j+1]=children[j];
+        }
 
-    public int getId() {
-        return id;
+        children[i+1]=NewNodo;
+        
+        for (int j = (NumKeys-1); j >= i; j--) {
+            keys[j+1]=keys[j];
+        }
+        
+        keys[i]= nodo.keys[MinGradoNodo-1];
+        
+        NumKeys++;
+        
+        
     }
-
-    public void setId(int id) {
-        this.id = id;
+    
+    public void insertarVacio(Indice key){
+        int i = NumKeys-1;
+        if(isLeaf==true){
+            while(i>= 0 && keys[i].getId()>key.getId()){
+                keys[i+1] = keys[i];
+                i--;
+            }//fin while
+            
+            keys[i+1] = key;
+            NumKeys = NumKeys+1;
+            
+        }else{
+            while(i>=0 && keys[i].getId()> key.getId()){ //Busca el child
+                i--;
+                if(children[i+1].NumKeys == 2*MinGradoNodo-1){ //verifica si esta lleno
+                    splitChild(i+1, children[i+1]);//Al estar lleno entonces se hace split
+                    
+                    if(keys[i+1].getId()<key.getId()){
+                        i++;
+                    }
+                    
+                }
+                children[i+1].insertarVacio(key); 
+            }
+        }
     }
-
-    @Override
-    public String toString() {
-        return "Node{" + "key=" + key + ", id=" + id + '}';
-    }
-
+    
+    public void SearchSubNodes(){
+        int i;
+        for (i = 0; i < NumKeys; i++) {
+            if(isLeaf==false){
+                children[i].SearchSubNodes();
+                System.out.println(" "+keys[i]);
+            }//fin if
+        }//fin for
+        if(isLeaf==false){
+            children[i].SearchSubNodes();
+        }
+    }//fin searchSubNodes
+    
+    
+    
    
-
-  
-
-    
-    
     
     
     
