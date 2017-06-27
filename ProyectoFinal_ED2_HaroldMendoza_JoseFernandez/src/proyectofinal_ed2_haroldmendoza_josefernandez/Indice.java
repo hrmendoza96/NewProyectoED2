@@ -15,23 +15,14 @@ public class Indice implements Serializable {
 
     private static final long SerialVersionUID = 666L;
     private int Id;
-    private int rrn;
+    private int Key;
 
-    public int getRrn() {
-        return rrn;
-    }
-
-    public void setRrn(int rrn) {
-        this.rrn = rrn;
-    }
-
-    public Indice(int Id, int rrn) {
+    public Indice(int Id, int Key) {
         this.Id = Id;
-        this.rrn = rrn;
+        this.Key = Key;
     }
 
     public Indice() {
-
     }
 
     public int getId() {
@@ -41,5 +32,17 @@ public class Indice implements Serializable {
     public void setId(int Id) {
         this.Id = Id;
     }
+
+    public int getKey() {
+        return Key;
+    }
+
+    public void setKey(int Key) {
+        this.Key = Key;
+    }
+    
+    
+
+    
 
 }
