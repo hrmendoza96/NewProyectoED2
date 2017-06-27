@@ -192,7 +192,7 @@ public class TDA_ARLF {
     
     public boolean modify(Person p){
         boolean modifico = false;
-        
+        Person person = search(p.getName());
         
         
         
