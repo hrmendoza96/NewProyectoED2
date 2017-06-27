@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import javax.swing.JOptionPane;
 
@@ -28,7 +30,7 @@ public class TDA_ARLF {
         try {
             flujo = new RandomAccessFile(archivo, "rw");
             llenarAvailList();
-            readIndexFile();
+            //readIndexFile();
             
         } catch (Exception e) {
             System.out.println("Archivo no existe");
@@ -114,21 +116,30 @@ public class TDA_ARLF {
                     flujo.writeUTF(persona.getBirthDate());
                     flujo.writeFloat(persona.getSalary());
                     //IndexFile.add(new Indice(persona.getId(), rrn));
-                    //writeIndexFile(IndexFile.get(IndexFile.size()-1));
+                    /*
+                    for (Indice object : IndexFile) {
+                        writeIndexFile(object);
+                    }
+                    */
                     rrn++;
                     close();
                     return true;
                 }else{
+                    int posicion = (int) AvailList.remove(0); //inserta en la primera posicion
                     flujo.seek(0);
                     AvailList.remove(0);
-                    flujo.seek(sizeOfRecord*(rrn-1));
+                    flujo.seek(sizeOfRecord*posicion);
                     flujo.writeChar(persona.getEstadoRecord());
                     flujo.writeInt(persona.getId());
                     flujo.writeUTF(persona.getName());
                     flujo.writeUTF(persona.getBirthDate());
                     flujo.writeFloat(persona.getSalary());
                     //IndexFile.add(new Indice(persona.getId(), rrn));
-                    //writeIndexFile(IndexFile.get(IndexFile.size()-1));
+                    /*
+                    for (Indice object : IndexFile) {
+                        writeIndexFile(object);
+                    }
+                    */
                     rrn++;
                     close();
                     return true;
@@ -222,7 +233,7 @@ public class TDA_ARLF {
         System.out.println("RRNModificar: "+rrnModificar);
         try { 
             flujo.seek(0);
-            flujo.seek(sizeOfRecord*(rrnModificar-1));
+            flujo.seek(sizeOfRecord*(rrnModificar));
             flujo.writeChar(persona.getEstadoRecord());
             flujo.writeInt(persona.getId());
             flujo.writeUTF(persona.getName());
@@ -234,9 +245,6 @@ public class TDA_ARLF {
         }
         
         close();
-        
-        
-        
         
         return modifico;
     } //Fin modify
@@ -400,7 +408,7 @@ public class TDA_ARLF {
         } catch (EOFException e) {
         }
         
-        
+        sortIndexArrays(IndexFile);
         System.out.println("Cargado el IndexFile");
         
         
@@ -423,5 +431,17 @@ public class TDA_ARLF {
         return false;
       
     }//Fin de cargar archivo
+    
+    public ArrayList<Indice> sortIndexArrays(ArrayList temp) { //se realiza el sort del arrayList para el split
+        Collections.sort(temp, new Comparator<Indice>() {
+            @Override
+            public int compare(Indice o1, Indice o2) {
+                String id1 = o1.getId() + "";
+                String id2 = o2.getId() + "";
+                return id1.compareTo(id2);
+            }
+        });
+        return temp;
+    }
 
 }

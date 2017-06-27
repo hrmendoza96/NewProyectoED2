@@ -947,7 +947,8 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_b_deleteMouseClicked
 
     private void btn_RegisterUserMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_RegisterUserMouseClicked
-        if ((Integer.parseInt(txt_Id.getText()) < 0) || (Integer.parseInt(txt_SalarioUser.getText()) < 0) || (txt_nombreUser.getText().equals(""))) {
+        try {
+            if ((Integer.parseInt(txt_Id.getText()) < 0) || (Integer.parseInt(txt_SalarioUser.getText()) < 0) || (txt_nombreUser.getText().equals(""))) {
             JOptionPane.showMessageDialog(this.jd_Insert, "No ha llenado todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
         } else {
 
@@ -964,7 +965,7 @@ public class Main extends javax.swing.JFrame {
 
                 //Fin de pasar nombre a arreglo de caracteres
                 //Para el date
-                DateFormat df = new SimpleDateFormat("YYYY/MM/dd");
+                DateFormat df = new SimpleDateFormat("YYYY-MM-dd");
                 String fechaSeleccionada = df.format(jdc_FechaBirth.getDate());
                 String fecha;
 
@@ -998,6 +999,9 @@ public class Main extends javax.swing.JFrame {
         this.txt_Id.setText("");
         this.txt_SalarioUser.setText("");
         this.txt_nombreUser.setText("");
+        } catch (Exception e) {
+        }
+        
     }//GEN-LAST:event_btn_RegisterUserMouseClicked
 
     private void b_saveChangesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_b_saveChangesMouseClicked
@@ -1020,7 +1024,7 @@ public class Main extends javax.swing.JFrame {
                 persona.setSalary(Integer.parseInt(tf_ModifySalary.getText()));
 
                 //Para el date
-                DateFormat df = new SimpleDateFormat("YYYY/MM/dd");
+                DateFormat df = new SimpleDateFormat("YYYY-MM-dd");
                 String fechaSeleccionada = df.format(jdateModify.getDate());
                 String fecha;
                 fecha = fechaSeleccionada;
@@ -1238,7 +1242,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JTextField txt_nombreUser;
     // End of variables declaration//GEN-END:variables
 
-    File archivo = new File("./Registros.bin");
+    File archivo = new File("./NeoRegistros");
     TDA_ARLF tda = new TDA_ARLF(archivo);
     ArrayList<Person> personas = new ArrayList();
     Person personaToDelete = null;
@@ -1269,7 +1273,6 @@ public class Main extends javax.swing.JFrame {
         
     }
     
-
 
     private void ListarCBModificar() throws IOException {
         DefaultComboBoxModel modelo = (DefaultComboBoxModel) cb_modify.getModel(); //Crea uno nuevo cada vez
@@ -1336,25 +1339,24 @@ public class Main extends javax.swing.JFrame {
             FileReader fr = null;
             BufferedReader br = null;
             Person p;
-            ArrayList<Person> personas = new ArrayList();
             
-            File x2 = new File("./Registros.bin");
+            File x2 = new File("./NeoRegistros");
             TDA_ARLF tempTDA = new TDA_ARLF(x2);
             int numRegistros = 0;
 
             //Inicio de metodo con BufferedReader
             try {
-                x = new File("./Registros.txt");
+                x = new File("./NeoRegistros.txt");
                 fr = new FileReader(x);
                 br = new BufferedReader(fr);
 
                 String linea = "";
                 while ((linea = br.readLine()) != null) {
-                    String[] lineas = linea.split(",");
-                    p = new Person('-', Integer.parseInt(lineas[3]), lineas[0], lineas[2], Float.parseFloat(lineas[1]));//estado,id,nombre,fecha,salario
+                    String[] lineas = linea.split(";");
+                    p = new Person('-', Integer.parseInt(lineas[2]), lineas[0], lineas[1], Float.parseFloat(lineas[3]));//estado,id,nombre,fecha,salario
                     tempTDA.insert(p);
                     numRegistros++;
-                    System.out.println("Registro: "+numRegistros);
+                    //System.out.println("Registro: "+numRegistros);
                     //personas.add(p);
                 }//Fin del while
             } catch (Exception e) {
@@ -1369,15 +1371,6 @@ public class Main extends javax.swing.JFrame {
 
             
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         
