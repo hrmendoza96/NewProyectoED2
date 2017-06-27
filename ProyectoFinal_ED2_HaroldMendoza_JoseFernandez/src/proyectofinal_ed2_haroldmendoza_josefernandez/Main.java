@@ -1230,7 +1230,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JTextField txt_nombreUser;
     // End of variables declaration//GEN-END:variables
 
-    File archivo = new File("./Prueba.bin");
+    File archivo = new File("./PruebaDelete.bin");
     TDA_ARLF tda = new TDA_ARLF(archivo);
     ArrayList<Person> personas = new ArrayList();
     Person personaToDelete = null;

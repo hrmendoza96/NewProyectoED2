@@ -224,11 +224,12 @@ public class TDA_ARLF {
                    flujo.writeUTF(recordBorrar.getBirthDate());
                    flujo.writeFloat(recordBorrar.getSalary());
                    //Se agrega al AvailList el registro borrado
-                   // AvailList.add(recordBorrar);
+                   AvailList.add(0, rrnDelete);
                        System.out.println("Probando Availist");
                        
                        for (Object object : AvailList) {
                            String x = object.toString();
+                           System.out.println("Hola");
                            System.out.println(x);
                        }
                     
